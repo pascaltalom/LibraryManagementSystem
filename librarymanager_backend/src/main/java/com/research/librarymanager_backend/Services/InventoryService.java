@@ -1,11 +1,11 @@
 package com.research.librarymanager_backend.Services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.research.librarymanager_backend.Exceptions.InventoryNotFoundException;
 import com.research.librarymanager_backend.Models.Inventory;
 import com.research.librarymanager_backend.Repositories.InventoryRepository;
 
@@ -14,6 +14,10 @@ public class InventoryService {
 
     @Autowired
     private InventoryRepository inventoryRepository;
+
+    public InventoryService(InventoryRepository inventoryRepository) {
+        this.inventoryRepository = inventoryRepository;
+    }
 
     // Create Book
     public Inventory createInventory(Inventory inventory) {
@@ -26,22 +30,13 @@ public class InventoryService {
     }
 
     // Get Inventory by Id
-    public Optional<Inventory> getInventoryById(Long inventoryId) {
-        return inventoryRepository.findById(inventoryId);
+    public Inventory getInventoryById(Long inventoryId) {
+        return inventoryRepository.findById(inventoryId).orElseThrow(()->new InventoryNotFoundException("Inventory with id"+ inventoryId +"Not Found"));
     }
 
     // Update Inventory
-    public Inventory updateInventory(Long inventoryId, Inventory inventory) {
-        Optional<Inventory> existingInventory = inventoryRepository.findById(inventoryId);
-        if (existingInventory.isPresent()) {
-            Inventory updatedInventory = existingInventory.get();
-            updatedInventory.setBook(inventory.getBook());
-            updatedInventory.setQuantity(inventory.getQuantity());
-            updatedInventory.setDateAdded(inventory.getDateAdded());
-            updatedInventory.setDateModified(inventory.getDateModified());
-            return inventoryRepository.save(updatedInventory);
-        }
-        return null;
+    public Inventory updateInventory(Inventory inventory){
+        return inventoryRepository.save(inventory);
     }
 
     // Delete

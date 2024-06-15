@@ -1,11 +1,11 @@
 package com.research.librarymanager_backend.Services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.research.librarymanager_backend.Exceptions.FineNotFoundException;
 import com.research.librarymanager_backend.Models.Fine;
 import com.research.librarymanager_backend.Repositories.FineRepository;
 
@@ -14,6 +14,10 @@ public class FineService {
 
     @Autowired
     private FineRepository fineRepository;
+    
+    public FineService(FineRepository fineRepository) {
+        this.fineRepository = fineRepository;
+    }
 
     // Create a fine
     public Fine createFine(Fine fine) {
@@ -26,25 +30,15 @@ public class FineService {
     }
 
     // Get Fine by Id
-    public Optional<Fine> getFineById(Long fineId) {
-        return fineRepository.findById(fineId);
+    public Fine getFineById(Long fineId) {
+        return fineRepository.findById(fineId).orElseThrow(()->new FineNotFoundException("Fine with id"+ fineId +"Not Found"));
     }
 
-
-    // Update Fine
-    public Fine updateFine(Long fineId, Fine fine) {
-        Optional<Fine> existingFine = fineRepository.findById(fineId);
-        if (existingFine.isPresent()) {
-            Fine updatedFine = existingFine.get();
-            updatedFine.setBookCopy(fine.getBookCopy());
-            updatedFine.setFineAmount(fine.getFineAmount());
-            updatedFine.setFineDate(fine.getFineDate());
-            updatedFine.setStatus(fine.getStatus());
-            updatedFine.setMember(fine.getMember());
-            return fineRepository.save(updatedFine);
-        }
-        return null;
+    // Update Member
+    public Fine updateFine(Fine fine){
+        return fineRepository.save(fine);
     }
+
 
    // Delete fine
     public void deleteFine(Long fineId) {

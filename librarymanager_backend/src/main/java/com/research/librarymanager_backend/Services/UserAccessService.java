@@ -1,11 +1,11 @@
 package com.research.librarymanager_backend.Services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.research.librarymanager_backend.Exceptions.AccessNotFoundException;
 import com.research.librarymanager_backend.Models.UserAccess;
 import com.research.librarymanager_backend.Repositories.UserAccessRepository;
 
@@ -14,6 +14,17 @@ public class UserAccessService {
 
     @Autowired
     private UserAccessRepository userAccessRepository;
+    
+
+    // create a constructor
+    public UserAccessService(UserAccessRepository userAccessRepository) {
+        this.userAccessRepository = userAccessRepository;
+    }
+
+    // add a User access
+    public UserAccess createUserAccess(UserAccess userAccess) {
+        return userAccessRepository.save(userAccess);
+    }
 
     // Get all User Accesses
     public List<UserAccess> getAllUserAccesses() {
@@ -22,27 +33,12 @@ public class UserAccessService {
 
     // Get User access By id
     public UserAccess getUserAccessById(Long userId) {
-        Optional<UserAccess> userAccess = userAccessRepository.findById(userId);
-        return userAccess.orElse(null);
-    }
-
-    // Create a User access
-    public UserAccess createUserAccess(UserAccess userAccess) {
-        return userAccessRepository.save(userAccess);
+        return userAccessRepository.findById(userId).orElseThrow(()->new AccessNotFoundException("userAccess"+userId+" was Not Found"));
     }
 
     // Update a User Access
-    public UserAccess updateUserAccess(Long userId, UserAccess userAccess) {
-        Optional<UserAccess> existingUserAccess = userAccessRepository.findById(userId);
-        if (existingUserAccess.isPresent()) {
-            UserAccess updatedUserAccess = existingUserAccess.get();
-            updatedUserAccess.setUsername(userAccess.getUsername());
-            updatedUserAccess.setPassword(userAccess.getPassword());
-            updatedUserAccess.setAccessLevel(userAccess.getAccessLevel());
-            updatedUserAccess.setEmployee(userAccess.getEmployee());
-            return userAccessRepository.save(updatedUserAccess);
-        }
-        return null;
+    public UserAccess updatUserAccess(UserAccess userAccess){
+        return userAccessRepository.save(userAccess);
     }
 
     // Delete User Access

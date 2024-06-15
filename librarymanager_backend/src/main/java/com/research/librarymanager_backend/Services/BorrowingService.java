@@ -1,11 +1,11 @@
 package com.research.librarymanager_backend.Services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.research.librarymanager_backend.Exceptions.BorrowingNotFoundException;
 import com.research.librarymanager_backend.Models.Borrowing;
 import com.research.librarymanager_backend.Repositories.BorrowingRepository;
 
@@ -14,6 +14,10 @@ public class BorrowingService {
 
     @Autowired
     private BorrowingRepository borrowingRepository;
+
+    public BorrowingService(BorrowingRepository borrowingRepository) {
+        this.borrowingRepository = borrowingRepository;
+    }
 
     // Create borrowing
     public Borrowing createBorrowing(Borrowing borrowing) {
@@ -27,23 +31,12 @@ public class BorrowingService {
 
     // Get Borrowings By Id
     public Borrowing getBorrowingById(Long borrowId) {
-        Optional<Borrowing> borrowing = borrowingRepository.findById(borrowId);
-        return borrowing.orElse(null);
+        return borrowingRepository.findById(borrowId).orElseThrow(()->new BorrowingNotFoundException("borrowing with id"+ borrowId +"Not Found"));
     }
 
     // Update Borrowing
-    public Borrowing updateBorrowing(Long borrowId, Borrowing borrowing) {
-        Optional<Borrowing> existingBorrowing = borrowingRepository.findById(borrowId);
-        if (existingBorrowing.isPresent()) {
-            Borrowing updatedBorrowing = existingBorrowing.get();
-            updatedBorrowing.setBookCopy(borrowing.getBookCopy());
-            updatedBorrowing.setBorrowDate(borrowing.getBorrowDate());
-            updatedBorrowing.setReturnDate(borrowing.getReturnDate());
-            updatedBorrowing.setDueDate(borrowing.getDueDate());
-            updatedBorrowing.setMember(borrowing.getMember());
-            return borrowingRepository.save(updatedBorrowing);
-        }
-        return null;
+    public Borrowing updateBorrowing(Borrowing borrowing) {
+        return borrowingRepository.save(borrowing); 
     }
 
     // Delete borrowing

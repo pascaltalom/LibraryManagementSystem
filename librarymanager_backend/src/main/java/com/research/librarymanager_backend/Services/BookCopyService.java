@@ -1,11 +1,11 @@
 package com.research.librarymanager_backend.Services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.research.librarymanager_backend.Exceptions.BookCopyNotFoundException;
 import com.research.librarymanager_backend.Models.BookCopy;
 import com.research.librarymanager_backend.Repositories.BookCopyRepository;
 
@@ -14,6 +14,11 @@ public class BookCopyService {
 
      @Autowired
     private BookCopyRepository bookcopyRepository;
+    
+
+    public BookCopyService(BookCopyRepository bookcopyRepository) {
+        this.bookcopyRepository = bookcopyRepository;
+    }
 
     // Create Book
     public BookCopy createBookCopy(BookCopy bookcopy){
@@ -26,21 +31,13 @@ public class BookCopyService {
     }
 
     // Get Book by Id
-    public Optional<BookCopy>getBookCopyById(Long id){
-        return bookcopyRepository.findById(id);
+    public BookCopy getBookCopyById(Long copyid){
+        return bookcopyRepository.findById(copyid).orElseThrow(()->new BookCopyNotFoundException("BookCopy with id"+ copyid +"Not Found"));
     }
 
     // Update Book
-    public BookCopy updateBook(Long CopyId, BookCopy bookcopy){
-        Optional<BookCopy> existingBookCopy = bookcopyRepository.findById(CopyId);
-        if(existingBookCopy.isPresent()){
-            BookCopy updateBookCopy = existingBookCopy.get();
-            updateBookCopy.setBook(bookcopy.getBook());
-            updateBookCopy.setStatus(bookcopy.getStatus());
-            updateBookCopy.setDueDate(bookcopy.getDueDate());
-            return bookcopyRepository.save(updateBookCopy);
-        }
-        return null;
+    public BookCopy updateBookCopy(BookCopy bookcopy){
+        return bookcopyRepository.save(bookcopy);
     }
 
     // Delete Book
